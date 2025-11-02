@@ -9,8 +9,15 @@ import retrofit2.http.Query
 interface OpenWeatherService {
 
     @GET("geo/1.0/direct")
-    suspend fun getCityInfo(
+    suspend fun getCityInfoByName(
         @Query("q") cityName: String,
+        @Query("limit") limit: Int
+    ): List<CityResponseDto>
+
+    @GET("geo/1.0/reverse")
+    suspend fun getCityInfoByCoordinates(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
         @Query("limit") limit: Int
     ): List<CityResponseDto>
 
