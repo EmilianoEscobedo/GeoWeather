@@ -2,7 +2,7 @@ package com.istea.geoweather.data.repository
 
 import android.util.Log
 import com.istea.geoweather.data.api.OpenWeatherService
-import com.istea.geoweather.data.mapper.toDomain
+import com.istea.geoweather.data.mapper.toEntity
 import com.istea.geoweather.entity.Forecast
 
 class ForecastRepository(private val service: OpenWeatherService) {
@@ -14,7 +14,7 @@ class ForecastRepository(private val service: OpenWeatherService) {
         try {
             Log.d(LOG_TAG, "Fetching forecast for: lat=$lat, lon=$lon, limit=$limit")
             val response = service.getForecast(lat, lon, limit)
-            return response.toDomain()
+            return response.toEntity()
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Error fetching forecast", e)
             throw e

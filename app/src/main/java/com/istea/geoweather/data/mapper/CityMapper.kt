@@ -3,7 +3,7 @@ package com.istea.geoweather.data.mapper
 import com.istea.geoweather.data.dto.CityResponseDto
 import com.istea.geoweather.entity.City
 
-fun CityResponseDto.toDomain(): City {
+fun CityResponseDto.toEntity(): City {
     return City(
         name = this.name,
         latitude = this.lat,

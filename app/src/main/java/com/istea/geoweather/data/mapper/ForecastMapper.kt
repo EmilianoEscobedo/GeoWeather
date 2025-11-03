@@ -8,13 +8,13 @@ import com.istea.geoweather.entity.CityForecast
 import com.istea.geoweather.entity.Forecast
 import com.istea.geoweather.entity.ForecastItem
 
-fun ForecastResponseDto.toDomain(): Forecast {
-    val domainCity = city.toDomain()
-    val domainItems = list.map { it.toDomain() }
+fun ForecastResponseDto.toEntity(): Forecast {
+    val domainCity = city.toEntity()
+    val domainItems = list.map { it.toEntity() }
     return Forecast(city = domainCity, items = domainItems)
 }
 
-fun CityForecastDto.toDomain(): CityForecast {
+fun CityForecastDto.toEntity(): CityForecast {
     return CityForecast(
         id = id,
         name = name,
@@ -24,7 +24,7 @@ fun CityForecastDto.toDomain(): CityForecast {
     )
 }
 
-fun ForecastItemDto.toDomain(): ForecastItem {
+fun ForecastItemDto.toEntity(): ForecastItem {
     val weatherCondition = weather.firstOrNull()
 
     return ForecastItem(
