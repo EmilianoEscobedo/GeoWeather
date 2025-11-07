@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                         composable("city") {
 
                         }
-                        composable("forecast") {
+                        composable("weather") {
 
                         }
                         composable("about") {
