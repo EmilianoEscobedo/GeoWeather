@@ -1,7 +1,8 @@
 package com.istea.geoweather.page.city
 
-sealed class CityIntent{
-    object  getDevicePosition:CityIntent()
-    data class searchCity(val text:String):CityIntent()
-    data class showWeather(val text:String):CityIntent()
+sealed class CityIntent {
+    object GetDevicePosition : CityIntent()
+    data class SearchCity(val text: String) : CityIntent()
+    data class ShowWeather(val text: String) : CityIntent()
+    object FinishLoading : CityIntent()
 }
