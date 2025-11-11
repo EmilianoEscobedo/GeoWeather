@@ -14,6 +14,12 @@ class HomeViewModel : ViewModel() {
             is HomeIntent.FinishLoading -> {
                 _state.value = _state.value.copy(isLoading = false)
             }
+            is HomeIntent.OpenAboutDialog -> {
+                _state.value = _state.value.copy(showAboutDialog = true)
+            }
+            is HomeIntent.CloseAboutDialog -> {
+                _state.value = _state.value.copy(showAboutDialog = false)
+            }
             else -> {}
         }
     }

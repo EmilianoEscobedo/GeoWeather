@@ -18,7 +18,8 @@ fun HomePage(
         onIntent = { intent ->
             when (intent) {
                 HomeIntent.NavigateToCity -> navController.navigate("city")
-                HomeIntent.NavigateToAbout -> navController.navigate("about")
+                HomeIntent.OpenAboutDialog -> viewModel.onIntent(intent)
+                HomeIntent.CloseAboutDialog -> viewModel.onIntent(intent)
                 HomeIntent.FinishLoading -> viewModel.onIntent(intent)
             }
         }
