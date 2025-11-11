@@ -6,9 +6,9 @@ data class CityState(
     val text: String,
     val filterList: List<City>,
     val favoriteCityList: List<City>,
-    val geolocationAllowed: Boolean = true,
+
+    //wich states from the City entity we will need were?
     val city: String,
     val country: String,
-    val latitude: Double,
-    val longitude: Double
+    val temperature: String,
     )
