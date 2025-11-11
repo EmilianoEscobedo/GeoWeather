@@ -36,9 +36,6 @@ class MainActivity : ComponentActivity() {
                         composable("weather") {
 
                         }
-                        composable("about") {
-
-                        }
                     }
                 }
             }
