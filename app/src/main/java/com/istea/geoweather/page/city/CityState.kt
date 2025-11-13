@@ -6,12 +6,10 @@ data class CityState(
     val text: String = "",
     val filterList: List<City> = emptyList(),
     val favoriteCityList: List<City> = emptyList(),
-
-    // Datos del clima actual (si hay una ciudad seleccionada)
+    val geolocationAllowed: Boolean = true,
     val city: String = "",
     val country: String = "",
-    val temperature: String = "",
-    val description: String = "",
-    val iconUrl: String = "",
+    val latitude: Double,
+    val longitude: Double,
     val isLoading: Boolean = false
 )
