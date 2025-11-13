@@ -78,7 +78,12 @@ fun CityView(
                     state.text.isNotEmpty() && cities.isNotEmpty() -> {
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(cities) { city ->
-                                CityCardSimple(city = city) { onSelectCity(city) }
+                                CityCardSimple(
+                                    city = city,
+                                    temperature = "22°C",
+                                    weatherIcon = "☀️",
+                                    onClick = { onSelectCity(city) }
+                                )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
@@ -137,6 +142,8 @@ fun CityView(
 @Composable
 fun CityCardSimple(
     city: City,
+    temperature: String = "--°C",
+    weatherIcon: String = "☁️",
     onClick: () -> Unit
 ) {
     Card(
@@ -146,7 +153,7 @@ fun CityCardSimple(
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
     ) {
         Row(
             modifier = Modifier
@@ -155,19 +162,46 @@ fun CityCardSimple(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
+            // Bandera
             Text(
                 text = getFlagEmoji(city.country),
-                fontSize = 36.sp,
+                fontSize = 42.sp,
                 textAlign = TextAlign.Center
             )
+
             Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = city.name,
-                style = MaterialTheme.typography.titleLarge
-            )
+
+            // Nombre + Clima
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = city.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = weatherIcon,
+                        fontSize = 20.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = temperature,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
         }
     }
 }
+
 
 
 @Composable
@@ -180,41 +214,55 @@ fun CityCardDetailed(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = getFlagEmoji(city.country),
-                fontSize = 40.sp,
+                text = "Tu Clima Ahora",
+                fontSize = 32.sp
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = city.name,
-                    style = MaterialTheme.typography.titleLarge
-                )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = getFlagEmoji(city.country),
+                fontSize = 56.sp
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = city.name,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+
                 Text(
                     text = temperature,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
-            }
-            Text(
-                text = weatherIcon,
-                fontSize = 36.sp,
-            )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = weatherIcon,
+                    fontSize = 32.sp
+                )
+
         }
     }
 }
+
 
 @Composable
 fun FavoriteFlag(city: City) {
