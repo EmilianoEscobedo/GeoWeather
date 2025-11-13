@@ -5,27 +5,27 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.istea.geoweather.entity.City
 import kotlinx.coroutines.delay
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 
 @Composable
 fun CityView(
     state: CityState,
     onIntent: (CityIntent) -> Unit,
-    ciudades: List<City>,
-    onBuscarCiudad: (String) -> Unit,
-    onSeleccionarCiudad: (City) -> Unit,
-    ciudadesFavoritas: List<City> = emptyList(),
-    ciudadActual: City? = null
+    cities: List<City>,
+    onSearchCity: (String) -> Unit,
+    onSelectCity: (City) -> Unit,
+    favoriteCities: List<City> = emptyList(),
+    currentCity: City? = null
 ) {
     LaunchedEffect(Unit) {
         delay(2000)
@@ -47,29 +47,38 @@ fun CityView(
             ) {
 
                 Text(
-                    text = "CLIMA",
+                    text = "Weather",
                     style = MaterialTheme.typography.headlineLarge,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                CitySearchBar(onBuscarCiudad = onBuscarCiudad)
+                CitySearchBar(onSearchCity = onSearchCity)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 when {
-                    ciudadActual != null && state.text.isEmpty() -> {
-                        CityCardSimple(
-                            city = ciudadActual,
-                            onClick = { onSeleccionarCiudad(ciudadActual) }
+                    currentCity != null && state.text.isEmpty() -> {
+                        CityCardDetailed(
+                            city = currentCity,
+                            temperature = "22°C",
+                            weatherIcon = "☀️",
+                            onClick = { onSelectCity(currentCity) }
                         )
                     }
 
-                    state.text.isNotEmpty() && ciudades.isNotEmpty() -> {
-                        LazyColumn(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            items(ciudades) { ciudad ->
-                                CityCardSimple(city = ciudad) { onSeleccionarCiudad(ciudad) }
+                    state.text.isNotEmpty() && cities.size == 1 -> {
+                        CityCardDetailed(
+                            city = cities.first(),
+                            temperature = "18°C",
+                            weatherIcon = "🌧️",
+                            onClick = { onSelectCity(cities.first()) }
+                        )
+                    }
+
+                    state.text.isNotEmpty() && cities.isNotEmpty() -> {
+                        LazyColumn(modifier = Modifier.weight(1f)) {
+                            items(cities) { city ->
+                                CityCardSimple(city = city) { onSelectCity(city) }
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
@@ -87,13 +96,13 @@ fun CityView(
                                 verticalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "🌤️ Buscá una ciudad o activá tu ubicación",
+                                    text = "🌤️ Search for a city or enable your location",
                                     style = MaterialTheme.typography.titleMedium,
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "para ver el clima actual.",
+                                    text = "to see the current weather.",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     textAlign = TextAlign.Center
@@ -106,17 +115,17 @@ fun CityView(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Ciudades Favoritas",
+                    text = "Favorite Cities",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
-                if (ciudadesFavoritas.isEmpty()) {
-                    Text("NO HAY CIUDADES AÑADIDAS A FAVORITOS")
+                if (favoriteCities.isEmpty()) {
+                    Text("NO FAVORITE CITIES ADDED")
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ciudadesFavoritas.forEach { ciudad ->
-                            BanderaFavorita(ciudad)
+                        favoriteCities.forEach { city ->
+                            FavoriteFlag(city)
                         }
                     }
                 }
@@ -124,7 +133,6 @@ fun CityView(
         }
     }
 }
-
 
 @Composable
 fun CityCardSimple(
@@ -138,20 +146,21 @@ fun CityCardSimple(
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Start
         ) {
             Text(
                 text = getFlagEmoji(city.country),
-                fontSize = 48.sp,
+                fontSize = 36.sp,
                 textAlign = TextAlign.Center
             )
+            Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = city.name,
                 style = MaterialTheme.typography.titleLarge
@@ -162,19 +171,89 @@ fun CityCardSimple(
 
 
 @Composable
-fun BanderaFavorita(city: City) {
-    Box(
+fun CityCardDetailed(
+    city: City,
+    temperature: String,
+    weatherIcon: String,
+    onClick: () -> Unit
+) {
+    Card(
         modifier = Modifier
-            .size(50.dp)
-            .padding(4.dp),
-        contentAlignment = Alignment.Center
+            .fillMaxWidth()
+            .height(120.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
     ) {
-        Text(
-            text = getFlagEmoji(city.country),
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Text(
+                text = getFlagEmoji(city.country),
+                fontSize = 40.sp,
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = city.name,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = temperature,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            Text(
+                text = weatherIcon,
+                fontSize = 36.sp,
+            )
+        }
     }
 }
+
+@Composable
+fun FavoriteFlag(city: City) {
+    Card(
+        modifier = Modifier
+            .size(90.dp)
+            .padding(4.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = getFlagEmoji(city.country),
+                fontSize = 40.sp,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = city.name,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
+    }
+}
+
 
 fun getFlagEmoji(countryCode: String): String {
     return countryCode.uppercase()
@@ -184,7 +263,7 @@ fun getFlagEmoji(countryCode: String): String {
 
 @Composable
 fun CitySearchBar(
-    onBuscarCiudad: (String) -> Unit
+    onSearchCity: (String) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
 
@@ -192,20 +271,19 @@ fun CitySearchBar(
         value = query,
         onValueChange = {
             query = it
-            onBuscarCiudad(it)
+            onSearchCity(it)
         },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
-        placeholder = { Text("Ingrese la Ciudad") },
+        placeholder = { Text("Enter a city") },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Buscar",
+                contentDescription = "Search",
                 tint = MaterialTheme.colorScheme.primary
             )
         },
-
         shape = RoundedCornerShape(12.dp),
         singleLine = true
     )

@@ -8,13 +8,14 @@ import com.istea.geoweather.entity.City
 fun CityPage(
     navController: NavController,
 ) {
-    var ciudades by remember { mutableStateOf(sampleCities()) }
-    var favoritas by remember { mutableStateOf(emptyList<City>()) }
+    var cities by remember { mutableStateOf(sampleCities()) }
+    var favorites by remember { mutableStateOf(emptyList<City>()) }
+    var searchText by remember { mutableStateOf("") }
 
     val state = CityState(
-        text = "",
-        filterList = ciudades,
-        favoriteCityList = favoritas,
+        text = searchText,
+        filterList = cities,
+        favoriteCityList = favorites,
         city = "",
         country = "",
         temperature = "",
@@ -25,8 +26,9 @@ fun CityPage(
         onIntent = { intent ->
             when (intent) {
                 is CityIntent.SearchCity -> {
-                    ciudades = sampleCities().filter {
-                        it.name.contains(intent.text, ignoreCase = true)
+                    searchText = intent.text
+                    cities = sampleCities().filter {
+                        it.name.contains(searchText, ignoreCase = true)
                     }
                 }
 
@@ -35,26 +37,31 @@ fun CityPage(
                 }
 
                 is CityIntent.GetDevicePosition -> {
-                    // Por ahora no hace nada
+                    // Not implemented yet
                 }
+
                 is CityIntent.FinishLoading -> {
+                    // No action needed for now
                 }
             }
         },
-        ciudades = ciudades,
-        onBuscarCiudad = { query ->
-            ciudades = sampleCities().filter { it.name.contains(query, ignoreCase = true) }
+        cities = cities,
+        onSearchCity = { query ->
+            searchText = query
+            cities = sampleCities().filter { it.name.contains(searchText, ignoreCase = true) }
         },
-        onSeleccionarCiudad = { city ->
-            favoritas = favoritas + city
+        onSelectCity = { city ->
+            favorites = favorites + city
+            // Navigate to the weather page with the selected city
+            navController.navigate("weather/${city.name}")
         },
-        ciudadesFavoritas = favoritas
+        favoriteCities = favorites
     )
 }
 
 fun sampleCities(): List<City> = listOf(
     City(name = "Buenos Aires", latitude = -34.6, longitude = -58.38, country = "AR"),
     City(name = "Madrid", latitude = 40.4, longitude = -3.7, country = "ES"),
-    City(name = "Londres", latitude = 51.5, longitude = -0.1, country = "GB"),
+    City(name = "London", latitude = 51.5, longitude = -0.1, country = "GB"),
     City(name = "New York", latitude = 40.7, longitude = -74.0, country = "US"),
 )
