@@ -9,6 +9,8 @@ class CityRepository(private val service: OpenWeatherService) {
     companion object {
         private const val LOG_TAG = "CityRepository"
     }
+    private val favoriteCities = mutableListOf<City>()
+
 
     suspend fun getCityInfoByName(cityName: String, limit: Int): List<City> {
         try {
@@ -31,4 +33,20 @@ class CityRepository(private val service: OpenWeatherService) {
             throw e
         }
     }
+    fun addFavoriteCity(city: City) {
+        if (favoriteCities.none { it.name.trim().lowercase() == city.name.trim().lowercase() }) {
+            favoriteCities.add(city)
+            Log.d(LOG_TAG, "City added to favorites: ${city.name}")
+        }
+    }
+
+    fun removeFavoriteCity(cityName: String) {
+        favoriteCities.removeAll { it.name.trim().lowercase() == cityName.trim().lowercase() }
+        Log.d(LOG_TAG, "City removed from favorites: $cityName")
+    }
+
+    fun getFavoriteCities(): List<City> = favoriteCities.toList()
+
+    fun isCityFavorite(cityName: String): Boolean =
+        favoriteCities.any { it.name.trim().lowercase() == cityName.trim().lowercase() }
 }
