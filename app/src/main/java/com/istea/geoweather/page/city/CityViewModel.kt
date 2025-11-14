@@ -57,6 +57,7 @@ class CityViewModel(
             is CityIntent.searchCity      -> handleSearchCity(intent.text)
             is CityIntent.showWeather     -> handleShowWeather(intent.text)
             CityIntent.getDevicePosition -> handleDevicePosition()
+            CityIntent.FinishLoading      -> _state.update { it.copy(isLoading = false) }
         }
     }
 
@@ -120,6 +121,12 @@ class CityViewModel(
         }
     }
 
+    fun saveLocationInHandle(latitude: Double, longitude: Double, allowed: Boolean) {
+        savedStateHandle["latitude"] = latitude
+        savedStateHandle["longitude"] = longitude
+        savedStateHandle["geolocationAllowed"] = allowed
+    }
+
     private fun handleDevicePosition() {
         val allowed: Boolean = savedStateHandle.get<Boolean>("geolocationAllowed") ?: true
         val lat: Double? = savedStateHandle.get<Double>("latitude")
@@ -178,7 +185,8 @@ class CityViewModel(
                     city = city.name,
                     country = city.country,
                     latitude = city.latitude,
-                    longitude = city.longitude
+                    longitude = city.longitude,
+                    currentCityWeather = weather
                 )
             }
             if (navigateToForecast) {
