@@ -16,14 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.istea.geoweather.entity.City
 import kotlinx.coroutines.delay
+import coil.compose.AsyncImage
 
 @Composable
 fun CityView(
     state: CityState,
     onIntent: (CityIntent) -> Unit,
     cities: List<City>,
-    onSearchCity: (String) -> Unit,
-    onSelectCity: (City) -> Unit,
     favoriteCities: List<City> = emptyList(),
     currentCity: City? = null
 ) {
@@ -52,26 +51,35 @@ fun CityView(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                CitySearchBar(onSearchCity = onSearchCity)
+                CitySearchBar(onSearchCity = { query ->
+                    onIntent(CityIntent.searchCity(query))
+                })
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                val weather = state.currentCityWeather
+                val temp = weather?.temperature?.toInt()?.toString()
+                val iconUrl = weather?.iconUrl
 
                 when {
                     currentCity != null && state.text.isEmpty() -> {
                         CityCardDetailed(
                             city = currentCity,
-                            temperature = "22°C",
-                            weatherIcon = "☀️",
-                            onClick = { onSelectCity(currentCity) }
+                            temperature = temp,
+                            weatherIconUrl = iconUrl,
+                            // El click en la tarjeta ahora llama a onIntent
+                            onClick = { onIntent(CityIntent.showWeather(currentCity.name)) }
                         )
                     }
 
                     state.text.isNotEmpty() && cities.size == 1 -> {
+                        val city = cities.first()
                         CityCardDetailed(
-                            city = cities.first(),
-                            temperature = "18°C",
-                            weatherIcon = "🌧️",
-                            onClick = { onSelectCity(cities.first()) }
+                            city = city,
+                            temperature = temp,
+                            weatherIconUrl = iconUrl,
+                            // El click en la tarjeta ahora llama a onIntent
+                            onClick = { onIntent(CityIntent.showWeather(city.name)) }
                         )
                     }
 
@@ -80,14 +88,14 @@ fun CityView(
                             items(cities) { city ->
                                 CityCardSimple(
                                     city = city,
-                                    temperature = "22°C",
-                                    weatherIcon = "☀️",
-                                    onClick = { onSelectCity(city) }
+                                    // El click en el item de la lista ahora llama a onIntent
+                                    onClick = { onIntent(CityIntent.showWeather(city.name)) }
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
                     }
+
 
                     else -> {
                         Box(
@@ -142,8 +150,6 @@ fun CityView(
 @Composable
 fun CityCardSimple(
     city: City,
-    temperature: String = "--°C",
-    weatherIcon: String = "☁️",
     onClick: () -> Unit
 ) {
     Card(
@@ -151,9 +157,6 @@ fun CityCardSimple(
             .fillMaxWidth()
             .height(100.dp)
             .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
     ) {
         Row(
             modifier = Modifier
@@ -162,42 +165,17 @@ fun CityCardSimple(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            // Bandera
             Text(
                 text = getFlagEmoji(city.country),
                 fontSize = 42.sp,
                 textAlign = TextAlign.Center
             )
-
             Spacer(modifier = Modifier.width(16.dp))
-
-            // Nombre + Clima
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = city.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = weatherIcon,
-                        fontSize = 20.sp
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = temperature,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
+            Text(
+                text = city.name,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         }
     }
 }
@@ -207,17 +185,14 @@ fun CityCardSimple(
 @Composable
 fun CityCardDetailed(
     city: City,
-    temperature: String,
-    weatherIcon: String,
+    temperature: String?,
+    weatherIconUrl: String?,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
     ) {
         Column(
             modifier = Modifier
@@ -227,38 +202,37 @@ fun CityCardDetailed(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Tu Clima Ahora",
+                text = "Your Weather",
                 fontSize = 32.sp
             )
-
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = getFlagEmoji(city.country),
                 fontSize = 56.sp
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             Text(
                 text = city.name,
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
             )
-
             Spacer(modifier = Modifier.height(16.dp))
 
-
+            if (weatherIconUrl != null) {
+                AsyncImage(
+                    model = weatherIconUrl,
+                    contentDescription = "Weather Icon",
+                    modifier = Modifier.size(100.dp)
+                )
+            }
+            if (temperature != null) {
                 Text(
-                    text = temperature,
-                    style = MaterialTheme.typography.titleMedium,
+                    text = "$temperature°C",
+                    style = MaterialTheme.typography.displayMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = weatherIcon,
-                    fontSize = 32.sp
-                )
-
+            }
         }
     }
 }

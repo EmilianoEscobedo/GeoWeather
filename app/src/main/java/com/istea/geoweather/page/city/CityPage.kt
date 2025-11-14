@@ -1,68 +1,93 @@
 package com.istea.geoweather.page.city
 
+import android.Manifest
+import android.annotation.SuppressLint
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.savedstate.SavedStateRegistryOwner
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.android.gms.location.LocationServices
+import com.istea.geoweather.data.remote.RetrofitClient
+import com.istea.geoweather.data.repository.CityRepository
+import com.istea.geoweather.data.repository.WeatherRepository
 import com.istea.geoweather.entity.City
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CityPage(
     navController: NavController,
 ) {
-    var cities by remember { mutableStateOf(sampleCities()) }
-    var favorites by remember { mutableStateOf(emptyList<City>()) }
-    var searchText by remember { mutableStateOf("") }
-
-    val state = CityState(
-        text = searchText,
-        filterList = cities,
-        favoriteCityList = favorites,
-        city = "",
-        country = "",
-        latitude = 0.0,
-        longitude = 0.0
+    val context = LocalContext.current
+    val owner = context as SavedStateRegistryOwner
+    val openWeatherService = RetrofitClient.service
+    val cityRepository = CityRepository(service = openWeatherService)
+    val weatherRepository = WeatherRepository(service = openWeatherService)
+    val viewModel: CityViewModel = viewModel(
+        factory = CityViewModelFactory(
+            owner = owner,
+            cityRepository = cityRepository,
+            weatherRepository = weatherRepository
+        )
     )
+    val state by viewModel.state.collectAsState()
+
+    // --- 2. LÓGICA DE PERMISOS DE UBICACIÓN ---
+    val locationPermissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        )
+    )
+
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    LaunchedEffect(locationPermissionsState.allPermissionsGranted) {
+        if (locationPermissionsState.allPermissionsGranted) {
+            @SuppressLint("MissingPermission")
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    viewModel.saveLocationInHandle(location.latitude, location.longitude, true)
+                    viewModel.onIntent(CityIntent.getDevicePosition)
+                }
+            }
+        } else {
+            locationPermissionsState.launchMultiplePermissionRequest()
+        }
+    }
+
+    val currentCityForView = remember(state.city, state.country, state.latitude, state.longitude) {
+        if (state.city.isNotEmpty()) {
+            City(
+                name = state.city,
+                country = state.country,
+                latitude = state.latitude,
+                longitude = state.longitude
+            )
+        } else {
+            null
+        }
+    }
 
     CityView(
         state = state,
-        onIntent = { intent ->
-            when (intent) {
-                is CityIntent.SearchCity -> {
-                    searchText = intent.text
-                    cities = sampleCities().filter {
-                        it.name.contains(searchText, ignoreCase = true)
-                    }
-                }
+        onIntent = viewModel::onIntent,
+        cities = state.filterList,
+        favoriteCities = state.favoriteCityList,
+        currentCity = currentCityForView,
+    )
 
-                is CityIntent.ShowWeather -> {
-                    navController.navigate("weather")
+    LaunchedEffect(Unit) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is CityEffect.ShowMessage -> {
                 }
-
-                is CityIntent.GetDevicePosition -> {
-                    // Not implemented yet
-                }
-
-                is CityIntent.FinishLoading -> {
-                    // No action needed for now
+                is CityEffect.NavigateToForecast -> {
+                    navController.navigate("forecast")
                 }
             }
-        },
-        cities = cities,
-        onSearchCity = { query ->
-            searchText = query
-            cities = sampleCities().filter { it.name.contains(searchText, ignoreCase = true) }
-        },
-        onSelectCity = { city ->
-            favorites = favorites + city
-            // Navigate to the weather page with the selected city
-            navController.navigate("weather/${city.name}")
-        },
-        favoriteCities = favorites
-    )
+        }
+    }
 }
-
-fun sampleCities(): List<City> = listOf(
-    City(name = "Buenos Aires", latitude = -34.6, longitude = -58.38, country = "AR"),
-    City(name = "Madrid", latitude = 40.4, longitude = -3.7, country = "ES"),
-    City(name = "London", latitude = 51.5, longitude = -0.1, country = "GB"),
-    City(name = "New York", latitude = 40.7, longitude = -74.0, country = "US"),
-)

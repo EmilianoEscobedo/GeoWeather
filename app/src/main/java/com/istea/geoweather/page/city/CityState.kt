@@ -1,7 +1,7 @@
 package com.istea.geoweather.page.city
 
 import com.istea.geoweather.entity.City
-
+import com.istea.geoweather.entity.Weather
 data class CityState(
     val text: String = "",
     val filterList: List<City> = emptyList(),
@@ -11,5 +11,6 @@ data class CityState(
     val country: String = "",
     val latitude: Double,
     val longitude: Double,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val currentCityWeather: Weather? = null
 )
