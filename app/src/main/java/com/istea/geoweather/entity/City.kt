@@ -5,5 +5,6 @@ data class City(
     val latitude: Double,
     val longitude: Double,
     val country: String,
-    val state: String? = null
+    val state: String? = null,
+    val flag: String
 )
