@@ -6,14 +6,14 @@ object RepositoryProvider {
     private val openWeatherService = OpenWeatherClient.api
 
     val cityRepository: CityRepository by lazy {
-        CityRepository(service = openWeatherService)
+        CityRepositoryImpl(service = openWeatherService)
     }
 
     val weatherRepository: WeatherRepository by lazy {
-        WeatherRepository(service = openWeatherService)
+        WeatherRepositoryImpl(service = openWeatherService)
     }
 
     val forecastRepository: ForecastRepository by lazy {
-        ForecastRepository(service = openWeatherService)
+        ForecastRepositoryImpl(service = openWeatherService)
     }
 }

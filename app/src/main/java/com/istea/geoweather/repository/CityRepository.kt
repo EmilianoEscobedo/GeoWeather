@@ -5,7 +5,19 @@ import com.istea.geoweather.data.api.OpenWeatherService
 import com.istea.geoweather.data.mapper.toEntity
 import com.istea.geoweather.entity.City
 
-class CityRepository(private val service: OpenWeatherService) {
+
+interface CityRepository {
+    suspend fun getCityInfoByName(cityName: String, limit: Int): List<City>
+    suspend fun getCityInfoByCoordinates(lat: Double, lon: Double, limit: Int): List<City>
+    fun setSelectedCity(city: City)
+    fun getSelectedCity(): City?
+    fun addFavoriteCity(city: City)
+    fun removeFavoriteCity(city: City)
+    fun getFavoriteCities(): List<City>
+    fun isCityFavorite(city: City): Boolean
+}
+
+class CityRepositoryImpl(private val service: OpenWeatherService) : CityRepository {
     companion object {
         private const val LOG_TAG = "CityRepository"
     }
@@ -13,7 +25,7 @@ class CityRepository(private val service: OpenWeatherService) {
     private val favoriteCities = mutableSetOf<City>()
     private var selectedCity: City? = null
 
-    suspend fun getCityInfoByName(cityName: String, limit: Int): List<City> {
+    override suspend fun getCityInfoByName(cityName: String, limit: Int): List<City> {
         try {
             Log.d(LOG_TAG, "Fetching cities for: cityName=$cityName, limit=$limit")
             return service.getCityInfoByName(cityName, limit).map { it.toEntity() }
@@ -23,7 +35,7 @@ class CityRepository(private val service: OpenWeatherService) {
         }
     }
 
-    suspend fun getCityInfoByCoordinates(lat: Double, lon: Double, limit: Int): List<City> {
+    override suspend fun getCityInfoByCoordinates(lat: Double, lon: Double, limit: Int): List<City> {
         try {
             Log.d(LOG_TAG, "Fetching cities for: lat=$lat, lon=$lon, limit=$limit")
             return service.getCityInfoByCoordinates(lat, lon, limit).map { it.toEntity() }
@@ -33,27 +45,27 @@ class CityRepository(private val service: OpenWeatherService) {
         }
     }
 
-    fun setSelectedCity(city: City) {
+    override fun setSelectedCity(city: City) {
         selectedCity = city
     }
 
-    fun getSelectedCity(): City? = selectedCity
+    override fun getSelectedCity(): City? = selectedCity
 
-    fun addFavoriteCity(city: City) {
+    override fun addFavoriteCity(city: City) {
         favoriteCities.add(city)
         Log.d(LOG_TAG, "City added to favorites: ${city.name}")
     }
 
-    fun removeFavoriteCity(city: City) {
+    override fun removeFavoriteCity(city: City) {
         favoriteCities.remove(city)
         Log.d(LOG_TAG, "City removed from favorites: ${city.name}")
     }
 
-    fun getFavoriteCities(): List<City> {
+    override fun getFavoriteCities(): List<City> {
         return favoriteCities.toList()
     }
 
-    fun isCityFavorite(city: City): Boolean {
+    override fun isCityFavorite(city: City): Boolean {
         return favoriteCities.contains(city)
     }
 }
