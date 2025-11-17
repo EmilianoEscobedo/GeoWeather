@@ -155,7 +155,7 @@ fun CurrentWeatherCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "${city.name}, ${city.state ?: ""}, ${city.country}",
+                        text = "${city.name}, ${city.state?.let { "$it, " } ?: ""}${city.country}",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -202,6 +202,7 @@ fun CurrentWeatherCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
+                modifier = Modifier.padding(bottom = 8.dp),
                 text = "Feels Like: ${weather.feelsLike.toInt()}°C",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
