@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.istea.geoweather.page.city.CityPage
+import com.istea.geoweather.page.forecast.ForecastPage
 import com.istea.geoweather.page.home.HomePage
 import com.istea.geoweather.ui.theme.GeoWeatherTheme
 
@@ -34,8 +35,8 @@ class MainActivity : ComponentActivity() {
                         composable("city") {
                             CityPage(navController = navController)
                         }
-                        composable("weather") {
-
+                        composable("forecast") {
+                            ForecastPage(navController = navController)
                         }
                     }
                 }
