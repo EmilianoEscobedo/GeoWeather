@@ -7,9 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.istea.geoweather.page.city.CityPage
-import com.istea.geoweather.page.forecast.ForecastPage
-import com.istea.geoweather.page.home.HomePage
+import com.istea.geoweather.presentation.city.CityPage
+import com.istea.geoweather.presentation.forecast.ForecastPage
+import com.istea.geoweather.presentation.home.HomePage
+import com.istea.geoweather.router.Navigator
+import com.istea.geoweather.router.Route
 import com.istea.geoweather.ui.theme.GeoWeatherTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,18 +21,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             GeoWeatherTheme {
                 val navController = rememberNavController()
+                val router = Navigator(navController)
+
                 NavHost(
                     navController = navController,
-                    startDestination = "home",
+                    startDestination = Route.Home.id,
                 ) {
-                    composable("home") {
-                        HomePage(navController = navController)
+                    composable(Route.Home.id) {
+                        HomePage(router = router)
                     }
-                    composable("city") {
-                        CityPage(navController = navController)
+                    composable(Route.City.id) {
+                        CityPage(router = router)
                     }
-                    composable("forecast") {
-                        ForecastPage(navController = navController)
+                    composable(Route.Forecast.id) {
+                        ForecastPage(router = router)
                     }
                 }
             }
