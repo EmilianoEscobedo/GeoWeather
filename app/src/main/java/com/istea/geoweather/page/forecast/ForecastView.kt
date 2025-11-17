@@ -26,107 +26,94 @@ fun ForecastView(
     state: ForecastState,
     onIntent: (ForecastIntent) -> Unit
 ) {
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .padding(0.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Extended Forecast") },
+                navigationIcon = {
+                    IconButton(onClick = { onIntent(ForecastIntent.NavigateBack) }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (state.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
                     color = MaterialTheme.colorScheme.primary
+                )
+            } else if (state.error != null) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { onIntent(ForecastIntent.NavigateBack) }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                        Text(
-                            "Extended Forecast",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        color = MaterialTheme.colorScheme.primary
+                    Text(
+                        text = state.error,
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center
                     )
-                } else if (state.error != null) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = state.error,
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 24.dp, start = 16.dp, end = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        item {
-                            if (state.city != null && state.currentWeather != null) {
-                                CurrentWeatherCard(
-                                    city = state.city,
-                                    weather = state.currentWeather,
-                                    isFavorite = state.isFavorite,
-                                    onToggleFavorite = { onIntent(ForecastIntent.ToggleFavorite) },
-                                    onShare = {
-                                        onIntent(ForecastIntent.ShareWeather)
-                                    }
-                                )
-                            }
-                        }
-
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "5-Day Forecast",
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                            }
-                        }
-
-                        item {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(bottom = 16.dp),
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.outline
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 24.dp, start = 16.dp, end = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        if (state.city != null && state.currentWeather != null) {
+                            CurrentWeatherCard(
+                                city = state.city,
+                                weather = state.currentWeather,
+                                isFavorite = state.isFavorite,
+                                onToggleFavorite = { onIntent(ForecastIntent.ToggleFavorite) },
+                                onShare = {
+                                    onIntent(ForecastIntent.ShareWeather)
+                                }
                             )
                         }
+                    }
 
-                        if (state.forecast?.items != null) {
-                            val dailyForecasts = state.forecast.items.toDailyForecasts()
-                            items(dailyForecasts) { dailyForecast ->
-                                DailyForecastCard(dailyForecast = dailyForecast)
-                            }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "5-Day Forecast",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
+
+                    item {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+
+                    if (state.forecast?.items != null) {
+                        val dailyForecasts = state.forecast.items.toDailyForecasts()
+                        items(dailyForecasts) { dailyForecast ->
+                            DailyForecastCard(dailyForecast = dailyForecast)
                         }
                     }
                 }

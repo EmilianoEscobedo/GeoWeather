@@ -34,34 +34,22 @@ fun CityView(
         onIntent(CityIntent.FinishLoading)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Current Weather") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { paddingValues ->
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .padding(0.dp),
-            contentAlignment = Alignment.CenterStart
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.primary
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Current Weather",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            }
-        }
-
-        Box(modifier = Modifier.fillMaxSize()) {
             if (state.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),
@@ -73,15 +61,14 @@ fun CityView(
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     CitySearchBar(
                         searchText = state.text,
                         onSearchCity = { query ->
                             onIntent(CityIntent.searchCity(query))
                         }
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Box(modifier = Modifier.weight(0.7f)) {
                         when {
