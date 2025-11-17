@@ -1,11 +1,11 @@
-package com.istea.geoweather.page.forecast
+package com.istea.geoweather.presentation.forecast
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.istea.geoweather.data.repository.CityRepository
-import com.istea.geoweather.data.repository.ForecastRepository
-import com.istea.geoweather.data.repository.WeatherRepository
+import com.istea.geoweather.repository.CityRepository
+import com.istea.geoweather.repository.ForecastRepository
+import com.istea.geoweather.repository.WeatherRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

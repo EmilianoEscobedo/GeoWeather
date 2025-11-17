@@ -1,4 +1,4 @@
-package com.istea.geoweather.page.city
+package com.istea.geoweather.presentation.city
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

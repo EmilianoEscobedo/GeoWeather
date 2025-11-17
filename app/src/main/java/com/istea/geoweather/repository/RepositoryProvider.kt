@@ -1,4 +1,4 @@
-package com.istea.geoweather.data.repository
+package com.istea.geoweather.repository
 
 import com.istea.geoweather.data.api.OpenWeatherClient
 

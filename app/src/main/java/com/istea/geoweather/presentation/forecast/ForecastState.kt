@@ -1,4 +1,4 @@
-package com.istea.geoweather.page.forecast
+package com.istea.geoweather.presentation.forecast
 
 import com.istea.geoweather.entity.City
 import com.istea.geoweather.entity.Forecast

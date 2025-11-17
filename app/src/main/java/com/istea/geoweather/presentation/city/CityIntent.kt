@@ -1,4 +1,4 @@
-package com.istea.geoweather.page.city
+package com.istea.geoweather.presentation.city
 
 sealed class CityIntent {
     object getDevicePosition : CityIntent()

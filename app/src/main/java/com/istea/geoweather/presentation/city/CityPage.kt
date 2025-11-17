@@ -1,20 +1,21 @@
-package com.istea.geoweather.page.city
+package com.istea.geoweather.presentation.city
 
 import android.Manifest
 import android.annotation.SuppressLint
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationServices
-import com.istea.geoweather.data.repository.RepositoryProvider
+import com.istea.geoweather.repository.RepositoryProvider
+import com.istea.geoweather.router.Router
+import com.istea.geoweather.router.Route
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CityPage(
-    navController: NavController,
+    router: Router,
 ) {
     val context = LocalContext.current
 
@@ -36,7 +37,7 @@ fun CityPage(
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    LaunchedEffect(navController.currentBackStackEntry) {
+    LaunchedEffect(Unit) {
         viewModel.onIntent(CityIntent.RefreshFavorites)
     }
 
@@ -65,7 +66,7 @@ fun CityPage(
                 is CityEffect.ShowMessage -> {
                 }
                 CityEffect.NavigateToWeather -> {
-                    navController.navigate("forecast")
+                    router.navigate(Route.Forecast)
                 }
             }
         }

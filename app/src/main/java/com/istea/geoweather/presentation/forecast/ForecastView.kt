@@ -1,4 +1,4 @@
-package com.istea.geoweather.page.forecast
+package com.istea.geoweather.presentation.forecast
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

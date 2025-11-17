@@ -1,4 +1,4 @@
-package com.istea.geoweather.page.home
+package com.istea.geoweather.presentation.home
 
 
 data class HomeState(

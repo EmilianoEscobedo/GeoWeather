@@ -1,15 +1,16 @@
-package com.istea.geoweather.page.forecast
+package com.istea.geoweather.presentation.forecast
 
 import android.content.ClipData
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.istea.geoweather.data.repository.RepositoryProvider
+import com.istea.geoweather.repository.RepositoryProvider
+import com.istea.geoweather.router.Router
+import com.istea.geoweather.router.Route
 
 @Composable
 fun ForecastPage(
-    navController: NavController
+    router: Router
 ) {
     val clipboard = LocalClipboard.current
 
@@ -46,7 +47,7 @@ fun ForecastPage(
                     }
                 }
                 is ForecastEffect.NavigateBack -> {
-                    navController.popBackStack()
+                    router.navigate(Route.City)
                 }
             }
         }

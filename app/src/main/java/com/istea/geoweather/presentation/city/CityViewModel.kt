@@ -1,10 +1,10 @@
-package com.istea.geoweather.page.city
+package com.istea.geoweather.presentation.city
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.istea.geoweather.data.repository.CityRepository
-import com.istea.geoweather.data.repository.WeatherRepository
+import com.istea.geoweather.repository.CityRepository
+import com.istea.geoweather.repository.WeatherRepository
 import com.istea.geoweather.entity.City
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

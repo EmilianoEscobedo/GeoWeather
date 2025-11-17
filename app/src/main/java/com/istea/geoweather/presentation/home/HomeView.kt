@@ -1,4 +1,4 @@
-package com.istea.geoweather.page.home
+package com.istea.geoweather.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

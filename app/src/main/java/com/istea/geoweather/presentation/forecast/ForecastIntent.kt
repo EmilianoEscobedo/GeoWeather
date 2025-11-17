@@ -1,4 +1,4 @@
-package com.istea.geoweather.page.forecast
+package com.istea.geoweather.presentation.forecast
 
 sealed class ForecastIntent {
     object LoadForecast : ForecastIntent()
