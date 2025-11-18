@@ -4,14 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.istea.geoweather.page.city.CityPage
-import com.istea.geoweather.page.home.HomePage
+import com.istea.geoweather.presentation.city.CityPage
+import com.istea.geoweather.presentation.forecast.ForecastPage
+import com.istea.geoweather.presentation.home.HomePage
+import com.istea.geoweather.router.Navigator
+import com.istea.geoweather.router.Route
 import com.istea.geoweather.ui.theme.GeoWeatherTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,22 +21,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             GeoWeatherTheme {
                 val navController = rememberNavController()
+                val router = Navigator(navController)
 
-                Scaffold { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = "home",
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        composable("home") {
-                            HomePage(navController = navController)
-                        }
-                        composable("city") {
-                            CityPage(navController = navController)
-                        }
-                        composable("weather") {
-
-                        }
+                NavHost(
+                    navController = navController,
+                    startDestination = Route.Home.id,
+                ) {
+                    composable(Route.Home.id) {
+                        HomePage(router = router)
+                    }
+                    composable(Route.City.id) {
+                        CityPage(router = router)
+                    }
+                    composable(Route.Forecast.id) {
+                        ForecastPage(router = router)
                     }
                 }
             }

@@ -1,7 +1,8 @@
-package com.istea.geoweather.page.city
+package com.istea.geoweather.presentation.city
 
 import com.istea.geoweather.entity.City
 import com.istea.geoweather.entity.Weather
+
 data class CityState(
     val text: String = "",
     val filterList: List<City> = emptyList(),
@@ -9,8 +10,13 @@ data class CityState(
     val geolocationAllowed: Boolean = true,
     val city: String = "",
     val country: String = "",
-    val latitude: Double,
-    val longitude: Double,
+    val flag: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
     val isLoading: Boolean = false,
-    val currentCityWeather: Weather? = null
+    val isSearching: Boolean = false,
+    val isLoadingGeolocation: Boolean = false,
+    val currentCityWeather: Weather? = null,
+    val selectedCity: City? = null,
+    val showNoResults: Boolean = false
 )
