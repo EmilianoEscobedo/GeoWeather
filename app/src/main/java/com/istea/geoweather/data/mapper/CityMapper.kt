@@ -9,6 +9,13 @@ fun CityResponseDto.toEntity(): City {
         latitude = this.lat,
         longitude = this.lon,
         country = this.country,
-        state = this.state
+        state = this.state,
+        flag = getFlagEmoji(this.country)
     )
+}
+
+fun getFlagEmoji(countryCode: String): String {
+    return countryCode.uppercase()
+        .map { char -> Character.codePointAt(charArrayOf(char), 0) - 65 + 0x1F1E6 }
+        .joinToString("") { code -> String(Character.toChars(code)) }
 }
