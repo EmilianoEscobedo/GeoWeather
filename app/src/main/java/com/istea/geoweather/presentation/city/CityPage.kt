@@ -10,7 +10,6 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationServices
 import com.istea.geoweather.repository.RepositoryProvider
 import com.istea.geoweather.router.Router
-import com.istea.geoweather.router.Route
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -18,14 +17,12 @@ fun CityPage(
     router: Router,
 ) {
     val context = LocalContext.current
-
-    val viewModel: CityViewModel = viewModel(
-        factory = CityViewModelFactory(
-            cityRepository = RepositoryProvider.cityRepository,
-            weatherRepository = RepositoryProvider.weatherRepository
-        )
+    val factory = CityViewModelFactory(
+        cityRepository = RepositoryProvider.cityRepository,
+        weatherRepository = RepositoryProvider.weatherRepository,
+        router = router
     )
-
+    val viewModel: CityViewModel = viewModel(factory = factory)
     val state by viewModel.state.collectAsState()
 
     val locationPermissionsState = rememberMultiplePermissionsState(
@@ -59,16 +56,4 @@ fun CityPage(
         state = state,
         onIntent = viewModel::onIntent
     )
-
-    LaunchedEffect(Unit) {
-        viewModel.effects.collect { effect ->
-            when (effect) {
-                is CityEffect.ShowMessage -> {
-                }
-                CityEffect.NavigateToWeather -> {
-                    router.navigate(Route.Forecast)
-                }
-            }
-        }
-    }
 }

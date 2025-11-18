@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.istea.geoweather.repository.CityRepository
 import com.istea.geoweather.repository.WeatherRepository
+import com.istea.geoweather.router.Router
+import com.istea.geoweather.router.Route
 import com.istea.geoweather.entity.City
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,12 +22,12 @@ private const val SEARCH_DEBOUNCE_MS = 2000L
 
 sealed class CityEffect {
     data class ShowMessage(val text: String) : CityEffect()
-    object NavigateToWeather : CityEffect()
 }
 
 class CityViewModel(
     private val cityRepository: CityRepository,
-    private val weatherRepository: WeatherRepository
+    private val weatherRepository: WeatherRepository,
+    private val router: Router
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(
@@ -45,7 +45,6 @@ class CityViewModel(
     val state: StateFlow<CityState> = _state.asStateFlow()
 
     private val _effects = MutableSharedFlow<CityEffect>()
-    val effects: SharedFlow<CityEffect> = _effects.asSharedFlow()
 
     private var searchJob: Job? = null
     private var locationData: LocationData? = null
@@ -90,7 +89,7 @@ class CityViewModel(
     private fun handleSelectFavoriteCity(city: City) {
         viewModelScope.launch {
             cityRepository.setSelectedCity(city)
-            _effects.emit(CityEffect.NavigateToWeather)
+            router.navigate(Route.Forecast)
         }
     }
 
@@ -164,7 +163,7 @@ class CityViewModel(
 
     private fun handleNavigateToExtendedForecast() {
         viewModelScope.launch {
-            _effects.emit(CityEffect.NavigateToWeather)
+            router.navigate(Route.Forecast)
         }
     }
 
@@ -247,13 +246,13 @@ class CityViewModel(
 
 class CityViewModelFactory(
     private val cityRepository: CityRepository,
-    private val weatherRepository: WeatherRepository
+    private val weatherRepository: WeatherRepository,
+    private val router: Router
 ) : ViewModelProvider.Factory {
-
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CityViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return CityViewModel(cityRepository, weatherRepository) as T
+            return CityViewModel(cityRepository, weatherRepository, router) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.istea.geoweather.repository.CityRepository
 import com.istea.geoweather.repository.ForecastRepository
 import com.istea.geoweather.repository.WeatherRepository
+import com.istea.geoweather.router.Router
+import com.istea.geoweather.router.Route
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,13 +20,13 @@ import kotlinx.coroutines.launch
 sealed class ForecastEffect {
     data class ShowMessage(val text: String) : ForecastEffect()
     object ShareWeatherCopied : ForecastEffect()
-    object NavigateBack : ForecastEffect()
 }
 
 class ForecastViewModel(
     private val cityRepository: CityRepository,
     private val weatherRepository: WeatherRepository,
-    private val forecastRepository: ForecastRepository
+    private val forecastRepository: ForecastRepository,
+    private val router: Router
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ForecastState())
@@ -107,7 +109,7 @@ class ForecastViewModel(
 
     private fun navigateBack() {
         viewModelScope.launch {
-            _effects.emit(ForecastEffect.NavigateBack)
+            router.navigate(Route.City)
         }
     }
 }
@@ -115,13 +117,13 @@ class ForecastViewModel(
 class ForecastViewModelFactory(
     private val cityRepository: CityRepository,
     private val weatherRepository: WeatherRepository,
-    private val forecastRepository: ForecastRepository
+    private val forecastRepository: ForecastRepository,
+    private val router: Router
 ) : ViewModelProvider.Factory {
-
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ForecastViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return ForecastViewModel(cityRepository, weatherRepository, forecastRepository) as T
+            return ForecastViewModel(cityRepository, weatherRepository, forecastRepository, router) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

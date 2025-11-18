@@ -6,21 +6,19 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.istea.geoweather.repository.RepositoryProvider
 import com.istea.geoweather.router.Router
-import com.istea.geoweather.router.Route
 
 @Composable
 fun ForecastPage(
     router: Router
 ) {
     val clipboard = LocalClipboard.current
-
-    val viewModel: ForecastViewModel = viewModel(
-        factory = ForecastViewModelFactory(
-            cityRepository = RepositoryProvider.cityRepository,
-            weatherRepository = RepositoryProvider.weatherRepository,
-            forecastRepository = RepositoryProvider.forecastRepository
-        )
+    val factory = ForecastViewModelFactory(
+        cityRepository = RepositoryProvider.cityRepository,
+        weatherRepository = RepositoryProvider.weatherRepository,
+        forecastRepository = RepositoryProvider.forecastRepository,
+        router = router
     )
+    val viewModel: ForecastViewModel = viewModel(factory = factory)
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -45,9 +43,6 @@ fun ForecastPage(
                         val clipData = ClipData.newPlainText("Weather", shareText)
                         clipboard.setClipEntry(androidx.compose.ui.platform.ClipEntry(clipData))
                     }
-                }
-                is ForecastEffect.NavigateBack -> {
-                    router.navigate(Route.City)
                 }
             }
         }
